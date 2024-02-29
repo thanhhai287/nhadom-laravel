@@ -1,0 +1,25 @@
+{
+    "private": true,
+    "scripts": {
+        "dev": "vite",
+        "build": "vite build"
+    },
+    "devDependencies": {
+        "@coreui/coreui": "^3.2.2",
+        "@coreui/icons": "^1.0.1",
+        "axios": "^0.21.4",
+        "bootstrap": "^4.1.0",
+        "laravel-mix": "^6.0.6",
+        "laravel-vite-plugin": "^1.0.1",
+        "popper.js": "^1.12",
+        "sass": "^1.66.1",
+        "vite": "^5.1.4"
+    },
+    "dependencies": {
+        "@vitejs/plugin-vue": "^5.0.4",
+        "autoprefixer": "^10.3.1",
+        "html2canvas": "^1.4.1",
+        "vue-web-screen-shot": "^1.5.3"
+    },
+    "type": "module"
+}

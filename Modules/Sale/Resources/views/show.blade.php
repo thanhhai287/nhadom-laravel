@@ -1,0 +1,82 @@
+@extends('layouts.app')
+
+@section('title', 'Sales Details')
+
+@section('breadcrumb')
+    <ol class="breadcrumb border-0 m-0">
+        <li class="breadcrumb-item"><a href="{{ route('home') }}">Home</a></li>
+        <li class="breadcrumb-item"><a href="{{ route('sales.index') }}">Sales</a></li>
+        <li class="breadcrumb-item active">Details</li>
+    </ol>
+@endsection
+
+@section('content')
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="card">
+                    <div class="card-header d-flex flex-wrap align-items-center justify-content-between ">
+                        <div>
+                            Reference: <strong>{{ $sale->reference }}</strong>
+                        </div>
+                        <a class="d-flex justify-content-end c-sidebar-nav-link {{ request()->routeIs('sales-report.index') ? 'c-active' : '' }}" href="{{ route('sales.index') }}">
+                            <i class="c-sidebar-nav-icon bi bi-box-arrow-right" style="line-height: 1;"></i>Thoát
+                        </a>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive-sm">
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="align-middle">Product</th>
+                                    <th class="align-middle">Quantity</th>
+                                    <th class="align-middle">Discount</th>
+                                    <th class="align-middle">Sub Total</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                @foreach($sale->saleDetails as $item)
+                                    <tr>
+                                        <td class="align-middle">
+                                            {{ $item->product_name }} <br>
+                                        </td>
+
+                                        <td class="align-middle">
+                                            {{ $item->quantity }}
+                                        </td>
+
+                                        <td class="align-middle">
+                                            {{ format_currency($item->product_discount_amount) }}
+                                        </td>
+
+                                        <td class="align-middle">
+                                            {{ format_currency($item->sub_total) }}
+                                        </td>
+                                    </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="row">
+                            <div class="col-lg-4 col-sm-5 ml-md-auto">
+                                <table class="table">
+                                    <tbody>
+                                    <tr>
+                                        <td class="left"><strong>Discount ({{ $sale->discount_percentage }}%)</strong></td>
+                                        <td class="right">{{ format_currency($sale->discount_amount) }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="left"><strong>Total</strong></td>
+                                        <td class="right"><strong>{{ format_currency($sale->total_amount) }}</strong></td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
