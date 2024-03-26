@@ -21,8 +21,14 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/sales-purchases/chart-data', 'HomeController@salesPurchasesChart')
         ->name('sales-purchases.chart');
 
+    Route::post('/sales-purchases/chart-data', 'HomeController@salesPurchasesChart')
+        ->name('sales.chart');
+
     Route::get('/current-month/chart-data', 'HomeController@currentMonthChart')
         ->name('current-month.chart');
+
+    Route::post('/current-month/chart-data', 'HomeController@currentMonthChart')
+        ->name('current.chart');
 
     Route::get('/payment-flow/chart-data', 'HomeController@paymentChart')
         ->name('payment-flow.chart');

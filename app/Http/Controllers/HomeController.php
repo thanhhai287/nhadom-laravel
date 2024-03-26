@@ -13,7 +13,7 @@ use Modules\Sale\Entities\Sale;
 use Modules\Sale\Entities\SalePayment;
 use Modules\SalesReturn\Entities\SaleReturn;
 use Modules\SalesReturn\Entities\SaleReturnPayment;
-
+use Illuminate\Http\Request;
 class HomeController extends Controller
 {
 
@@ -44,8 +44,8 @@ class HomeController extends Controller
         })->sum('total_amount');
 
         $revenue_month = Sale::where('status', 'Completed')
-            ->whereMonth('date', date('m'))
-            ->whereYear('date', date('Y'))
+            ->whereMonth('date', Carbon::now('Asia/Ho_Chi_Minh')->format('m'))
+            ->whereYear('date', Carbon::now('Asia/Ho_Chi_Minh')->format('Y'))
             ->sum('total_amount') / 100;
 
         $product_costs_month = 0;
@@ -87,25 +87,9 @@ class HomeController extends Controller
     }
 
 
-    public function currentMonthChart() {
+    public function currentMonthChart(Request $request) {
         // Hàm được đổi lại thành Tổng quan trong hôm nay
         abort_if(!request()->ajax(), 404);
-
-//        $currentMonthSales = Sale::where('status', 'Completed')->whereMonth('date', date('m'))
-//                ->whereYear('date', date('Y'))
-//                ->sum('total_amount') / 100;
-//        $currentMonthPurchases = Purchase::where('status', 'Completed')->whereMonth('date', date('m'))
-//                ->whereYear('date', date('Y'))
-//                ->sum('total_amount') / 100;
-//        $currentMonthExpenses = Expense::whereMonth('date', date('m'))
-//                ->whereYear('date', date('Y'))
-//                ->sum('amount') / 100;
-//
-//        return response()->json([
-//            'sales'     => $currentMonthSales,
-//            'purchases' => $currentMonthPurchases,
-//            'expenses'  => $currentMonthExpenses
-//        ]);
         $today = Sale::where('status', 'Completed')->whereDate('date', Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d'))->get();
         $morning =  $today->where('created_at',">=", Carbon::now('Asia/Ho_Chi_Minh')->startOfDay()->format('Y-m-d H:i:s'))
                                 ->where('created_at',"<", Carbon::createFromTime(12, 0, 0, 'Asia/Ho_Chi_Minh')->format('Y-m-d H:i:s'))
@@ -117,9 +101,11 @@ class HomeController extends Controller
                                 ->where('created_at',"<=", Carbon::now('Asia/Ho_Chi_Minh')->endOfDay()->format('Y-m-d H:i:s'))
                                 ->sum('total_amount');
 
+        $month = $request->month != null ? $request->month : Carbon::now('Asia/Ho_Chi_Minh')->format('m');
+        $year = $request->month != null ? $request->year : Carbon::now('Asia/Ho_Chi_Minh')->format('Y');
 
-        $currentMonth = Sale::where('status', 'Completed')->whereMonth('date', date('m'))
-                ->whereYear('date', date('Y'))->get();
+        $currentMonth = Sale::where('status', 'Completed')->whereMonth('date', $month)
+                ->whereYear('date', $year)->get();
         $morningMonth = $currentMonth->filter(function ($sale) {
             return Carbon::parse($sale->created_at)->format('H:i:s') >= Carbon::now('Asia/Ho_Chi_Minh')->startOfDay()->format('H:i:s')
             and Carbon::parse($sale->created_at)->format('H:i:s') < Carbon::createFromTime(12, 0, 0, 'Asia/Ho_Chi_Minh')->format('H:i:s');
@@ -143,10 +129,10 @@ class HomeController extends Controller
     }
 
 
-    public function salesPurchasesChart() {
+    public function salesPurchasesChart(Request $request) {
         abort_if(!request()->ajax(), 404);
 
-        $sales = $this->salesChartData();
+        $sales = $this->salesChartData($request);
 
         return response()->json(['sales' => $sales]);
     }
@@ -229,16 +215,51 @@ class HomeController extends Controller
         ]);
     }
 
-    public function salesChartData() {
-        $query = collect(DB::select('WITH sales_temp AS (SELECT * FROM sales where month(date) = 02 and year(date) = 2024)
-        select date, SUM(total_amount) AS count, payment_method from sales_temp group by date, payment_method order by date asc;'));
+    public function salesChartData(Request $request) {
+        if (!$request->picker_value) $request->picker_value = '';
+        $picker_value = $request->picker_value;
+
+        if ($picker_value == 'Monthly') {
+            $statistics = collect(DB::select('WITH sales_temp AS (SELECT * FROM sale_details where year(created_at) = ?),
+	sales_count_temp AS (SELECT IFNULL(month(s.created_at), 0) as now, IFNULL(SUM(s.quantity), 0) as count FROM sales_temp s RIGHT JOIN products p on p.id = s.product_id GROUP BY now ORDER BY count DESC)
+	SELECT now as statistic_day, SUM(count) as count FROM sales_count_temp GROUP BY statistic_day;'
+                , [Carbon::now('Asia/Ho_Chi_Minh')->format('Y')]));
+            $query = collect(DB::select('WITH sales_temp AS (SELECT * FROM sales where year(date) = ?)
+        select month(date) as date, SUM(total_amount) AS count, payment_method from sales_temp group by month(date), payment_method order by date asc;', [Carbon::now('Asia/Ho_Chi_Minh')->format('Y')]));
+        } else if ($picker_value == 'Yearly') {
+            $statistics = collect(DB::select('WITH sales_temp AS (SELECT * FROM sale_details),
+	sales_count_temp AS (SELECT IFNULL(year(s.created_at), 0) as now,  IFNULL(SUM(s.quantity), 0) as count FROM sales_temp s RIGHT JOIN products p on p.id = s.product_id GROUP BY now ORDER BY count DESC)
+	SELECT now as statistic_day, SUM(count) as count FROM sales_count_temp GROUP BY statistic_day;'));
+            $query = collect(DB::select('WITH sales_temp AS (SELECT * FROM sales)
+        select year(date) as date, SUM(total_amount) AS count, payment_method from sales_temp group by year(date), payment_method order by date asc;'));
+        } else if ($picker_value == 'Daily_Month') {
+            if (!$request->year) $request->year =  Carbon::now('Asia/Ho_Chi_Minh')->format('Y');
+            if (!$request->month) $request->month =  Carbon::now('Asia/Ho_Chi_Minh')->format('m');
+            $statistics = collect(DB::select('	WITH sales_temp AS (SELECT * FROM sale_details where month(created_at) = ? and year(created_at) = ?),
+	sales_count_temp AS (SELECT IFNULL(date(s.created_at), 0)  as now,  IFNULL(SUM(s.quantity), 0) as count FROM sales_temp s RIGHT JOIN products p on p.id = s.product_id GROUP BY now ORDER BY count DESC)
+	SELECT now as statistic_day, SUM(count) as count FROM sales_count_temp GROUP BY statistic_day;'
+                , [$request->month,  $request->year]));
+            $query = collect(DB::select('WITH sales_temp AS (SELECT * FROM sales where month(date) = ? and year(date) = ?)
+        select date, SUM(total_amount) AS count, payment_method from sales_temp group by date, payment_method order by date asc;', [$request->month, $request->year]));
+        } else {
+            $statistics = collect(DB::select('	WITH sales_temp AS (SELECT * FROM sale_details where month(created_at) = ? and year(created_at) = ?),
+	sales_count_temp AS (SELECT IFNULL(date(s.created_at), 0) as now,  IFNULL(SUM(s.quantity), 0) as count FROM sales_temp s RIGHT JOIN products p on p.id = s.product_id GROUP BY now ORDER BY count DESC)
+	SELECT now as statistic_day, SUM(count) as count FROM sales_count_temp GROUP BY statistic_day;'
+                , [Carbon::now('Asia/Ho_Chi_Minh')->format('m'), Carbon::now('Asia/Ho_Chi_Minh')->format('Y')]));
+            $query = collect(DB::select('WITH sales_temp AS (SELECT * FROM sales where month(date) = ? and year(date) = ?)
+        select date, SUM(total_amount) AS count, payment_method from sales_temp group by date, payment_method order by date asc;', [Carbon::now('Asia/Ho_Chi_Minh')->format('m'), Carbon::now('Asia/Ho_Chi_Minh')->format('Y')]));
+        }
+
 
         $data = [];
+        $statistics_data = [];
         foreach ($query as $item) {
             array_push($data, $item);
         }
-
-        return response()->json(['data' => $data]);
+        foreach ($statistics as $item) {
+            array_push($statistics_data, $item);
+        }
+        return response()->json(['data' => $data, 'statistics_data' => $statistics_data]);
     }
 
 

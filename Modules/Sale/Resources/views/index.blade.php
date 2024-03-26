@@ -13,16 +13,38 @@
     </ol>
 @endsection
 
+
+
 @section('content')
     <div class="container-fluid">
         <div class="row">
             <div class="col-12">
                 <div class="card">
                     <div class="card-body">
-                        <a href="{{ route('sales.create') }}" class="btn btn-primary">
-                            Add Sale <i class="bi bi-plus"></i>
-                        </a>
+                        <form>
+                            <div class="form-row">
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label>Bắt đầu<span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="start_date" id="start_date" placeholder="Bắt đầu"
+                                               value="{{$start_date}}"/>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4">
+                                    <div class="form-group">
+                                        <label>Kết thúc<span class="text-danger">*</span></label>
+                                        <input type="date" class="form-control" name="end_date" id="end_date" placeholder="Kết thúc"
+                                               value="{{$end_date }}"/>
+                                    </div>
+                                </div>
+                                <div class="ml-3 form-group mb-0 d-flex align-items-center">
+                                    <button type="submit" class="btn btn-primary">
+                                        Tìm kiếm
+                                    </button>
+                                </div>
+                            </div>
 
+                        </form>
                         <hr>
 
                         <div class="table-responsive">

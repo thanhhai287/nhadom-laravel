@@ -4,6 +4,12 @@
     </a>
 </li>
 
+<li class="c-sidebar-nav-item c-sidebar-nav-dropdown c-show">
+    <a class="c-sidebar-nav-link {{ request()->routeIs('app.pos.index') ? 'd-none' : '' }}" href="{{ route('app.pos.index') }}">
+        <i class="c-sidebar-nav-icon bi bi-journals" style="line-height: 1;"></i>  Hệ thống POS
+    </a>
+</li>
+
 @can('access_products')
 <li class="c-sidebar-nav-item c-sidebar-nav-dropdown {{ request()->routeIs('products.*') || request()->routeIs('product-categories.*') ? 'c-show' : '' }}">
     <a class="c-sidebar-nav-link c-sidebar-nav-dropdown-toggle" href="#">
@@ -135,7 +141,7 @@
 @can('access_sales')
     <li class="c-sidebar-nav-item c-sidebar-nav-dropdown {{ request()->routeIs('sales.*') || request()->routeIs('sale-payments*') ? 'c-show' : '' }}">
         <a class="c-sidebar-nav-link {{ request()->routeIs('sales.index') ? 'c-active' : '' }}" href="{{ route('sales.index') }}">
-            <i class="c-sidebar-nav-icon bi bi-journals" style="line-height: 1;"></i> Doanh thu bán hàng
+            <i class="c-sidebar-nav-icon bi bi-journals" style="line-height: 1;"></i> Báo cáo
         </a>
 {{--        @can('create_sales')--}}
 {{--            <ul class="c-sidebar-nav-dropdown-items">--}}

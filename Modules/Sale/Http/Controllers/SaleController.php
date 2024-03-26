@@ -21,8 +21,9 @@ class SaleController extends Controller
 
     public function index(SalesDataTable $dataTable) {
         abort_if(Gate::denies('access_sales'), 403);
-
-        return $dataTable->render('sale::index');
+        $start_date = request()->start_date ?  Carbon::parse(request()->start_date)->startOfDay()->format('Y-m-d')  : Carbon::now('Asia/Ho_Chi_Minh')->startOfDay()->format('Y-m-d');
+        $end_date = request()->end_date ? Carbon::parse(request()->end_date)->endOfDay()->format('Y-m-d') : Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d');
+        return $dataTable->render('sale::index', compact(['start_date', 'end_date']));
     }
 
 

@@ -25,7 +25,7 @@
 
                         <hr>
 
-                        <div class="table-responsive">
+                        <div class="table-responsive" style="height: 100%; overflow: auto">
                             {!! $dataTable->table() !!}
                         </div>
                     </div>

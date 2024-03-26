@@ -26,8 +26,8 @@ class ProductDataTable extends DataTable
             ->addColumn('product_price', function ($data) {
                 return format_currency($data->product_price);
             })
-            ->addColumn('product_quantity', function ($data) {
-                return $data->product_quantity . ' ' . $data->product_unit;
+            ->addColumn('product_cost', function ($data) {
+                return format_currency($data->product_cost);
             })
             ->rawColumns(['product_image']);
     }
@@ -43,20 +43,8 @@ class ProductDataTable extends DataTable
                     ->setTableId('product-table')
                     ->columns($this->getColumns())
                     ->minifiedAjax()
-                    ->dom("<'row'<'col-md-3'l><'col-md-5 mb-2'B><'col-md-4'f>> .
-                                'tr' .
-                                <'row'<'col-md-5'i><'col-md-7 mt-2'p>>")
-                    ->orderBy(7)
-                    ->buttons(
-                        Button::make('excel')
-                            ->text('<i class="bi bi-file-earmark-excel-fill"></i> Excel'),
-                        Button::make('print')
-                            ->text('<i class="bi bi-printer-fill"></i> Print'),
-                        Button::make('reset')
-                            ->text('<i class="bi bi-x-circle"></i> Reset'),
-                        Button::make('reload')
-                            ->text('<i class="bi bi-arrow-repeat"></i> Reload')
-                    );
+                    ->orderBy(2)->paging(false);
+
     }
 
     protected function getColumns()
@@ -70,16 +58,11 @@ class ProductDataTable extends DataTable
                 ->title('Name')
                 ->className('text-center align-middle'),
 
-            Column::make('product_code')
-                ->title('Code')
-                ->className('text-center align-middle'),
-
             Column::computed('product_price')
                 ->title('Price')
                 ->className('text-center align-middle'),
-
-            Column::computed('product_quantity')
-                ->title('Quantity')
+            Column::computed('product_cost')
+                ->title('Cost')
                 ->className('text-center align-middle'),
 
             Column::make('category.category_name')

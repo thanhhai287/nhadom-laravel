@@ -105,8 +105,20 @@
             @can('show_weekly_sales_purchases')
             <div class="col-xl-9 col-lg-12 col-md-12 col-sm-12">
                 <div class="card border-0 shadow-sm h-100">
-                    <div class="card-header">
-                        Doanh thu trong tháng {{ \Carbon\Carbon::now('Asia/Ho_Chi_Minh')->format('m-Y') }}
+                    <div class="card-header d-flex justify-content-start">
+                        <div class="mr-3 align-content-center text-center align-self-center"> Doanh thu</div>
+                       <div>
+                           <select class="form-control" name="revenue" id="revenue" required>
+                               <option value="Daily">Theo ngày trong tháng {{ \Carbon\Carbon::now('Asia/Ho_Chi_Minh')->format('m-Y') }}</option>
+                               <option value="Monthly">Theo tháng trong năm
+                                   {{ \Carbon\Carbon::now('Asia/Ho_Chi_Minh')->format('Y') }}
+                               </option>
+                               <option value="Yearly">Theo năm </option>
+                           </select>
+                       </div>
+                        <input type="month" id="monthInput" name="monthInput" class="ml-3" lang="vi">
+                        <label for="datepicker">Choose a date:</label>
+                        <input type="date" id="datepicker">
                     </div>
                     <div class="card-body">
                         <canvas id="salesPurchasesChart"></canvas>
@@ -123,8 +135,11 @@
                             <canvas id="currentDailyChart"></canvas>
                         </div>
                     </div>
-                    <div class="card-header">
-                        Tổng quan trong tháng {{ \Carbon\Carbon::now('Asia/Ho_Chi_Minh')->format('m-Y') }}
+                    <div class="card-header d-flex">
+                        <div>
+                            Tổng quan trong tháng
+                        </div>
+                        <input type="month" id="monthInputDoughnut" name="monthInputDoughnut" class="ml-3">
                     </div>
                     <div class="card-body d-flex justify-content-center">
                         <div class="chart-container" style="position: relative; height:auto; width:280px">

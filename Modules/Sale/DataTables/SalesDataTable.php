@@ -39,7 +39,12 @@ class SalesDataTable extends DataTable
     }
 
     public function query(Sale $model) {
-        return $model->newQuery()->orderBy('created_at', 'desc');
+        $start_date = request()->start_date ?  Carbon::parse(request()->start_date)->startOfDay()->format('Y-m-d H:i:s')  : Carbon::now('Asia/Ho_Chi_Minh')->startOfDay()->format('Y-m-d H:i:s');
+        $end_date = request()->end_date ? Carbon::parse(request()->end_date)->endOfDay()->format('Y-m-d H:i:s') : Carbon::now('Asia/Ho_Chi_Minh')->format('Y-m-d H:i:s');
+
+        return $model->newQuery()->where('created_at', '>=', $start_date)
+                                 ->where('created_at', '<=', $end_date)
+                                 ->orderBy('created_at', 'desc');
     }
 
     public function html() {
@@ -47,7 +52,7 @@ class SalesDataTable extends DataTable
             ->setTableId('sales-table')
             ->columns($this->getColumns())
             ->minifiedAjax()
-            ->orderBy(1);
+            ->orderBy(1)->paging(false);
 
     }
 

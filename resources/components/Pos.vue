@@ -317,7 +317,7 @@ export default {
                 const parsedValue = parseFloat(value.replace('.', ''));
                 this.paid = isNaN(parsedValue) ? 0 : parsedValue;
             }
-        }
+        },
     },
     methods: {
         formatPrice(value) {
